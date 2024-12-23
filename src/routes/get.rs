@@ -1,30 +1,35 @@
-use std::fmt::format;
-use rocket::get;
-use rocket::sentinel::resolution::Resolve;
+use rocket::{get, State};
 use std::fs::File;
 use std::io::Read;
+use crate::config::ServerConfig;
 
 #[get("/")]
 pub(crate) async fn index() {}
 
 #[get("/passwords")]
-pub(crate) async fn all_passwords_id() -> Result<Vec<String>, GetPassError> {
-    let files = std::fs::read_dir("data");
+pub(crate) async fn all_passwords_id(config: &State<ServerConfig>) -> Result<Vec<u8>, GetPassError> {
+    // Get a list of all files in the data directory as an iterator
+    let files = std::fs::read_dir(
+        // Gets the config's data dir or a default "data"
+        config.data_dir.clone().unwrap_or(String::from("data"))
+    );
     if files.is_err() {
         return Err(GetPassError {
             message: "Error reading data directory".to_string(),
         });
     }
+
+    // Read the files names and add it to the result vector
     let files = files.unwrap();
-    let mut res = Vec::new();
+    let mut res : Vec<u8> = Vec::new();
     for file in files {
         let file = file.unwrap();
-        let file_name = file.file_name();
-        let file_name = file_name.to_str().unwrap();
-        res.push(file_name.to_string());
+        let mut file_name = file.file_name().into_encoded_bytes();
+        if res.len() > 0 { res.push('\n' as u8); }
+        res.append(&mut file_name);
     }
-    Ok(res)
 
+    Ok(res)
 }
 
 #[get("/passwords/<password_id>")]
