@@ -7,14 +7,11 @@ use crate::config::ServerConfig;
 pub(crate) async fn index() {}
 
 #[get("/passwords")]
-pub(crate) async fn all_passwords_id(config: &State<ServerConfig>) -> Result<Vec<u8>, GetPassError> {
+pub(crate) async fn all_passwords_id(config: &State<ServerConfig>) -> Result<Vec<u8>, GetPasswordError> {
     // Get a list of all files in the data directory as an iterator
-    let files = std::fs::read_dir(
-        // Gets the config's data dir or a default "data"
-        config.data_dir.clone().unwrap_or(String::from("data"))
-    );
+    let files = std::fs::read_dir(config.data_dir());
     if files.is_err() {
-        return Err(GetPassError {
+        return Err(GetPasswordError {
             message: "Error reading data directory".to_string(),
         });
     }
@@ -33,10 +30,10 @@ pub(crate) async fn all_passwords_id(config: &State<ServerConfig>) -> Result<Vec
 }
 
 #[get("/passwords/<password_id>")]
-pub(crate) async fn password(password_id: &str) -> Result<Vec<u8>, GetPassError> {
-    let file = File::open(format!("data/{}", password_id));
+pub(crate) async fn password(config: &State<ServerConfig>, password_id: &str) -> Result<Vec<u8>, GetPasswordError> {
+    let file = File::open(format!("{}/{}", config.data_dir(), password_id));
     if file.is_err() {
-        return Err(GetPassError {
+        return Err(GetPasswordError {
             message: "Password not found or other internal error".to_string(),
         });
     }
@@ -44,7 +41,7 @@ pub(crate) async fn password(password_id: &str) -> Result<Vec<u8>, GetPassError>
     let mut res = Vec::new();
     let read_result = file.read_to_end(&mut res);
     if read_result.is_err() {
-        return Err(GetPassError {
+        return Err(GetPasswordError {
             message: "Error reading password file".to_string(),
         });
     }
@@ -52,6 +49,6 @@ pub(crate) async fn password(password_id: &str) -> Result<Vec<u8>, GetPassError>
 }
 
 #[derive(Responder)]
-struct GetPassError {
-    message: String,
+pub(crate) struct GetPasswordError {
+    pub(crate) message: String,
 }

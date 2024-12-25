@@ -28,3 +28,11 @@ impl Default for ServerConfig {
         }
     }
 }
+
+impl ServerConfig {
+
+    // Gets the config's data dir or a default "data"
+    pub(crate) fn data_dir(&self) -> String {
+        self.data_dir.clone().unwrap_or(String::from("data"))
+    }
+}
