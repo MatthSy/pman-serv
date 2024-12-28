@@ -3,7 +3,7 @@ mod config;
 
 use rocket::Config;
 use crate::config::ServerConfig;
-use crate::routes::get;
+use crate::routes::{get, post};
 #[macro_use] extern crate rocket;
 
 #[launch]
@@ -17,4 +17,5 @@ fn rocket() -> _ {
         .configure(figment) // The Rocket config
         .manage(config) // Sets the app server config as a State
         .mount("/", routes![get::index, get::password, get::all_passwords_id]) // Mounts the get routes
+        .mount("/", routes![post::password])
 }

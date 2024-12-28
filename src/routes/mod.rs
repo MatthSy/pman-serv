@@ -1,2 +1,2 @@
 pub(crate) mod get;
-mod post;
+pub(crate) mod post;
