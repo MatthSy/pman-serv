@@ -7,10 +7,11 @@ pub(crate) struct ServerConfig {
     pub(crate) ip: String,
     pub(crate) port: u16,
     pub(crate) data_dir: Option<String>,
+    pub(crate) api_key_file: Option<String>,
 }
 
 pub(crate) fn load_config(config_dir : Option<String>) -> ServerConfig {
-    let config_dir = if config_dir.is_none() {String::from("config")} else {config_dir.unwrap()};
+    let config_dir = config_dir.unwrap_or(String::from("config.toml"));
 
     let mut file = File::open(config_dir).expect("Error opening the config file : file not found");
     let mut text = String::new();
@@ -25,6 +26,7 @@ impl Default for ServerConfig {
             ip: "127.0.0.1".to_string(),
             port: 8000,
             data_dir: None,
+            api_key_file: None,
         }
     }
 }
