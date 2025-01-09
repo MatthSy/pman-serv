@@ -1,3 +1,4 @@
+use std::fmt::format;
 use rocket::{get, State};
 use std::fs::File;
 use std::io::Read;
@@ -13,8 +14,21 @@ pub(crate) enum GetPasswordError {
 
 }
 
+#[allow(unused)]
 #[get("/")]
-pub(crate) async fn index() {}
+pub(crate) async fn index(config: &State<ServerConfig>, api_key: &State<Arc<Mutex<ApiKeyStore>>>) -> Result<String, Err> {
+    // TODO : renvoyer des info et des chiffres du serv
+
+    let mut msg = String::new();
+
+    let dir = std::fs::read_dir(config.data_dir());
+    if dir.is_err() { msg += "Could not read directory\n"; }
+    msg = format!("{}{}\n", msg, dir.unwrap().fold(0, |acc, _| acc + 1).to_string());
+
+
+
+    // TODO créer des logs
+}
 
 #[get("/passwords")]
 pub(crate) async fn all_passwords_id(config: &State<ServerConfig>, _api_key: &State<Arc<Mutex<ApiKeyStore>>>) -> Result<Vec<u8>, GetPasswordError> {
