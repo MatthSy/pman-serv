@@ -22,11 +22,14 @@ pub(crate) async fn index(config: &State<ServerConfig>, api_key: &State<Arc<Mute
     let mut msg = String::new();
 
     let dir = std::fs::read_dir(config.data_dir());
-    if dir.is_err() { msg += "Could not read directory\n"; }
-    msg = format!("{}{}\n", msg, dir.unwrap().fold(0, |acc, _| acc + 1).to_string());
+    if dir.is_err() {
+        msg += "Could not read directory\n";
+    } else {
+        msg = format!("{}{}\n", msg, dir.unwrap().fold(0, |acc, _| acc + 1).to_string());
+    }
 
 
-
+    Ok(msg)
     // TODO créer des logs
 }
 
