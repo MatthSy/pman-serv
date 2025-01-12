@@ -16,7 +16,7 @@ pub(crate) enum GetPasswordError {
 
 #[allow(unused)]
 #[get("/")]
-pub(crate) async fn index(config: &State<ServerConfig>, api_key: &State<Arc<Mutex<ApiKeyStore>>>, logger: &State<Arc<Mutex<Logger>>>) -> Result<String, ()> {
+pub(crate) async fn index(config: &State<ServerConfig>, api_key_store: &State<Arc<Mutex<ApiKeyStore>>>, api_key: ApiKey) -> Result<String, ()> {
     let mut msg = String::from("Server is running\n");
 
     // The number of passwords stored :
@@ -36,20 +36,18 @@ pub(crate) async fn index(config: &State<ServerConfig>, api_key: &State<Arc<Mute
     }
 
     // The number of API keys loaded :
-    let api_keys = api_key.lock();
+    let api_keys = api_key_store.lock();
     if api_keys.is_err() {
         msg += "Unable to access API keys\n";
     } else {
         msg = format!("{}{}\n", msg, api_keys.unwrap().len());
     }
 
-    logger.lock().unwrap().log("WAAAAAA");
-
     Ok(msg)
 }
 
 #[get("/passwords")]
-pub(crate) async fn all_passwords_id(config: &State<ServerConfig>, _api_key: &State<Arc<Mutex<ApiKeyStore>>>) -> Result<Vec<u8>, GetPasswordError> {
+pub(crate) async fn all_passwords_id(config: &State<ServerConfig>, _api_key: ApiKey) -> Result<Vec<u8>, GetPasswordError> {
     // Get a list of all files in the data directory as an iterator
     let files = std::fs::read_dir(config.data_dir());
     if files.is_err() {
@@ -58,7 +56,7 @@ pub(crate) async fn all_passwords_id(config: &State<ServerConfig>, _api_key: &St
 
     // Read the files names and add it to the result vector
     let files = files.unwrap();
-    let mut res : Vec<u8> = Vec::new();
+    let mut res: Vec<u8> = Vec::new();
 
     for file in files {
         let file = file.unwrap();
@@ -71,7 +69,7 @@ pub(crate) async fn all_passwords_id(config: &State<ServerConfig>, _api_key: &St
 }
 
 #[get("/passwords/<password_id>")]
-pub(crate) async fn password(config: &State<ServerConfig>, password_id: &str, _api_key: &State<Arc<Mutex<ApiKeyStore>>>) -> Result<Vec<u8>, GetPasswordError> {
+pub(crate) async fn password(config: &State<ServerConfig>, password_id: &str, _api_key: ApiKey) -> Result<Vec<u8>, GetPasswordError> {
     let file = File::open(format!("{}/{}", config.data_dir(), password_id));
     if file.is_err() {
         return Err(GetPasswordError::DirectoryErr(String::from("Password not found or other internal error")));
@@ -80,7 +78,7 @@ pub(crate) async fn password(config: &State<ServerConfig>, password_id: &str, _a
     let mut res = Vec::new();
     let read_result = file.read_to_end(&mut res);
     if read_result.is_err() {
-        return Err(GetPasswordError::DirectoryErr(String::from("Error reading password file")))
+        return Err(GetPasswordError::DirectoryErr(String::from("Error reading password file")));
     }
     Ok(res)
 }

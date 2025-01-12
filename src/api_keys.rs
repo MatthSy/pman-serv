@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::fs;
+use std::sync::{Arc, Mutex};
 use rocket::Request;
 use rocket::request::{FromRequest, Outcome};
 
@@ -54,12 +55,12 @@ impl<'r> FromRequest<'r> for ApiKey {
     type Error = ApiKeyError;
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        let api_key_list = request.guard::<&rocket::State<ApiKeyStore>>().await.unwrap();
+        let api_key_list = request.guard::<&rocket::State<Arc<Mutex<ApiKeyStore>>>>().await.unwrap();
         if let Some(key) = request.headers().get_one("X-API-KEY") {
-            if api_key_list.is_valid(key) {
-                return Outcome::Success(ApiKey(String::from(key)))
+            return if api_key_list.lock().unwrap().is_valid(key) {
+                Outcome::Success(ApiKey(String::from(key)))
             } else {
-                return Outcome::Error((rocket::http::Status::Unauthorized, ApiKeyError::InvalidApiKey))
+                Outcome::Error((rocket::http::Status::Unauthorized, ApiKeyError::InvalidApiKey))
             }
         }
         Outcome::Error((rocket::http::Status::BadRequest, ApiKeyError::MissingApiKey))

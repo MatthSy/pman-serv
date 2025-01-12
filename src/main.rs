@@ -11,7 +11,7 @@ use std::sync::{Arc, Mutex};
 
 #[macro_use] extern crate rocket;
 use rocket::Config;
-
+use crate::logs::FairingLogger;
 
 #[launch]
 fn rocket() -> _ {
@@ -29,7 +29,8 @@ fn rocket() -> _ {
         .configure(figment) // The Rocket config
         .manage(config) // Sets the app server config as a Rocket State
         .manage(valid_api_keys) // Sets the api keys list as a Rocket State
-        .manage(logger) // Sets the logger as a Rocket State
+        .manage(Arc::clone(&logger)) // Sets the logger as a Rocket State
+        .attach(FairingLogger::new(logger)) // Attaches the logger fairing
         .mount("/", routes![get::index, get::password, get::all_passwords_id]) // Mounts the get routes
         .mount("/", routes![post::password, post::reload_api_keys]) // Mounts the post route
         .register("/", catchers![routes::catchers::unauthorized]) // Mounts the  catchers

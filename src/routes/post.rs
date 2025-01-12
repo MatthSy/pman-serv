@@ -17,7 +17,7 @@ pub(crate) enum PostError {
 }
 
 #[post("/passwords/<password_id>", data = "<data>")]
-pub(crate) async fn password(config: &State<ServerConfig>, password_id: &str, data: &str, _api_key: &State<Arc<Mutex<ApiKeyStore>>>) -> Result<(), PostError> {
+pub(crate) async fn password(config: &State<ServerConfig>, password_id: &str, data: &str, _api_key: ApiKey) -> Result<(), PostError> {
     let file = File::options()
         .write(true).create(true)
         .open(format!("{}/{}", config.data_dir(), password_id));
