@@ -15,6 +15,10 @@ impl ApiKeyStore {
         }
     }
 
+    pub(crate) fn len(&self) -> usize {
+        self.keys.len()
+    }
+
     pub(crate) fn is_valid(&self, key: &str) -> bool {
         self.keys.contains(key)
     }

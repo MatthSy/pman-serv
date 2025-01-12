@@ -5,7 +5,7 @@ use std::io::Read;
 use std::sync::{Arc, Mutex};
 use crate::api_keys::{ApiKey, ApiKeyStore};
 use crate::config::ServerConfig;
-
+use crate::logs::Logger;
 
 #[derive(Responder)]
 pub(crate) enum GetPasswordError {
@@ -16,11 +16,10 @@ pub(crate) enum GetPasswordError {
 
 #[allow(unused)]
 #[get("/")]
-pub(crate) async fn index(config: &State<ServerConfig>, api_key: &State<Arc<Mutex<ApiKeyStore>>>) -> Result<String, Err> {
-    // TODO : renvoyer des info et des chiffres du serv
+pub(crate) async fn index(config: &State<ServerConfig>, api_key: &State<Arc<Mutex<ApiKeyStore>>>, logger: &State<Arc<Mutex<Logger>>>) -> Result<String, ()> {
+    let mut msg = String::from("Server is running\n");
 
-    let mut msg = String::new();
-
+    // The number of passwords stored :
     let dir = std::fs::read_dir(config.data_dir());
     if dir.is_err() {
         msg += "Could not read directory\n";
@@ -28,9 +27,25 @@ pub(crate) async fn index(config: &State<ServerConfig>, api_key: &State<Arc<Mute
         msg = format!("{}{}\n", msg, dir.unwrap().fold(0, |acc, _| acc + 1).to_string());
     }
 
+    // The size of the data directory :
+    let dir = std::fs::metadata(config.data_dir());
+    if dir.is_err() {
+        msg += "Could not read directory\n";
+    } else {
+        msg = format!("{}{}\n", msg, dir.unwrap().len());
+    }
+
+    // The number of API keys loaded :
+    let api_keys = api_key.lock();
+    if api_keys.is_err() {
+        msg += "Unable to access API keys\n";
+    } else {
+        msg = format!("{}{}\n", msg, api_keys.unwrap().len());
+    }
+
+    logger.lock().unwrap().log("WAAAAAA");
 
     Ok(msg)
-    // TODO créer des logs
 }
 
 #[get("/passwords")]
