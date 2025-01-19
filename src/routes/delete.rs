@@ -1,5 +1,6 @@
 use rocket::delete;
 
+#[derive(Responder)]
 enum DeletePasswordError {
     #[response(status = 500)]
     DirectoryErr(String),

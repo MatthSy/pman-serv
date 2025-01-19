@@ -81,7 +81,7 @@ impl Fairing for FairingLogger {
     async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
         // Message to log, with the time, the method, the IP, and the URI
         let mut msg = format!(
-            "{} - {} Request received from user {} ip: {} to uri \"{}\"",
+            "{} {} Request, user {}, ip: {} to uri \"{}\"",
             get_time(),
             req.method(),
             req.headers().get_one("X-USER-NAME").unwrap_or("No user name"),
@@ -93,14 +93,14 @@ impl Fairing for FairingLogger {
         match res.status().code {
             401 => {
                 msg = format!(
-                    "{msg} - Invalid API key : {}",
+                    "{msg}, Invalid API key : {}",
                     req.headers()
                         .get_one("X-API-KEY")
                         .unwrap_or("No API key provided")
                 );
             }
             _ => {
-                msg = format!("{msg} - Valid API key");
+                msg = format!("{msg}, Valid API key");
             }
         }
 

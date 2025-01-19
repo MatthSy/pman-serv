@@ -1,15 +1,18 @@
 use crate::api_keys::ApiKeyError::{InvalidApiKey, InvalidUser};
 use rocket::request::{FromRequest, Outcome};
-use rocket::Request;
+use rocket::{Request, State};
 use std::collections::HashMap;
 use std::fs;
 use std::sync::{Arc, Mutex};
+use crate::config::ServerConfig;
 
+#[allow(unused)]
 #[derive(Debug)]
 pub(crate) struct ApiKeyStore {
     keys: HashMap<String, String>,
 }
 
+#[allow(unused)]
 impl ApiKeyStore {
     pub(crate) fn new() -> ApiKeyStore {
         ApiKeyStore {
@@ -52,8 +55,33 @@ impl ApiKeyStore {
 
 #[allow(unused)]
 #[derive(Debug)]
-pub(crate) struct ApiKey(String);
+pub(crate) struct ValidUser {
+    key: String,
+    user_name: String,
+}
 
+#[allow(unused)]
+impl ValidUser {
+    pub(crate) fn key(&self) -> &str {
+        &self.key
+    }
+
+    pub(crate) fn user_name(&self) -> &str {
+        &self.user_name
+    }
+
+    pub(crate) fn get_user_dir(&self, config: &State<ServerConfig>) -> Result<String, ()> {
+        let data_dir = config.data_dir() + &*format!("/{}", &self.user_name);
+
+        if let Ok(_) = fs::DirBuilder::new().recursive(true).create(&data_dir) {
+            Ok(data_dir)
+        } else {
+            Err(())
+        }
+    }
+}
+
+#[allow(unused)]
 #[derive(Debug)]
 pub(crate) enum ApiKeyError {
     MissingApiKey,
@@ -62,8 +90,9 @@ pub(crate) enum ApiKeyError {
     InvalidUser,
 }
 
+#[allow(unused)]
 #[rocket::async_trait]
-impl<'r> FromRequest<'r> for ApiKey {
+impl<'r> FromRequest<'r> for ValidUser {
     type Error = ApiKeyError;
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
@@ -89,7 +118,10 @@ impl<'r> FromRequest<'r> for ApiKey {
         {
             Outcome::Error((rocket::http::Status::BadRequest, err))
         } else {
-            Outcome::Success(ApiKey(String::from(api_key.unwrap())))
+            Outcome::Success(ValidUser {
+                key: String::from(api_key.unwrap()),
+                user_name: String::from(api_user.unwrap()),
+            })
         }
     }
 }

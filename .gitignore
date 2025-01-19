@@ -1,3 +1,6 @@
 /target
 /.idea
+data/
+serverLogs.log
 testLogs.log
+*.log
