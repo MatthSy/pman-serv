@@ -1,7 +1,7 @@
 use crate::api_keys::ApiKeyError::{InvalidApiKey, InvalidUser};
 use rocket::request::{FromRequest, Outcome};
 use rocket::Request;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::fs;
 use std::sync::{Arc, Mutex};
 
@@ -50,6 +50,7 @@ impl ApiKeyStore {
     }
 }
 
+#[allow(unused)]
 #[derive(Debug)]
 pub(crate) struct ApiKey(String);
 

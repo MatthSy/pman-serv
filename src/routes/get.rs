@@ -1,11 +1,9 @@
-use std::fmt::format;
 use rocket::{get, State};
 use std::fs::File;
 use std::io::Read;
 use std::sync::{Arc, Mutex};
 use crate::api_keys::{ApiKey, ApiKeyStore};
 use crate::config::ServerConfig;
-use crate::logs::Logger;
 
 #[derive(Responder)]
 pub(crate) enum GetPasswordError {
@@ -24,7 +22,7 @@ pub(crate) async fn index(config: &State<ServerConfig>, api_key_store: &State<Ar
     if dir.is_err() {
         msg += "Could not read directory\n";
     } else {
-        msg = format!("{}{}\n", msg, dir.unwrap().fold(0, |acc, _| acc + 1).to_string());
+        msg = format!("{}{}\n", msg, dir.unwrap().fold(0, |acc, _| acc + 1));
     }
 
     // The size of the data directory :
@@ -61,7 +59,7 @@ pub(crate) async fn all_passwords_id(config: &State<ServerConfig>, _api_key: Api
     for file in files {
         let file = file.unwrap();
         let mut file_name = file.file_name().into_encoded_bytes();
-        if res.len() > 0 { res.push('\n' as u8); }
+        if !res.is_empty() { res.push(b'\n'); }
         res.append(&mut file_name);
     }
 

@@ -21,7 +21,7 @@ pub(crate) fn load_config(config_dir : Option<String>) -> ServerConfig {
     let mut text = String::new();
     file.read_to_string(&mut text).expect("Error trying to read config file");
 
-    toml::from_str(&*text).expect("Error parsing config file")
+    toml::from_str(&text).expect("Error parsing config file")
 }
 
 impl Default for ServerConfig {
@@ -47,13 +47,13 @@ impl ServerConfig {
         self.log_file.clone().unwrap_or(String::from(""))
     }
     pub(crate) fn log_level(&self) -> u8 {
-        self.log_level.clone().unwrap_or(1)
+        self.log_level.unwrap_or(1)
     }
 
     pub(crate) fn new_logger(&self) -> Arc<Mutex<Logger>> {
         Arc::new(
             Mutex::new(
-                Logger::new(&*self.log_file(), self.log_level())
+                Logger::new(&self.log_file(), self.log_level())
             )
         )
     }

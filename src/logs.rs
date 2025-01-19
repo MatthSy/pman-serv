@@ -4,7 +4,6 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
 use std::time::SystemTime;
-use tokio;
 
 #[allow(unused)]
 #[derive(Clone)]
@@ -30,7 +29,6 @@ impl Logger {
         match file {
             Ok(mut file) => file.write_all(msg.as_bytes()).unwrap_or(()),
             Err(_) => {
-                return;
             }
         }
     }
@@ -72,7 +70,7 @@ impl Fairing for FairingLogger {
         self.logger()
             .lock()
             .unwrap()
-            .log(&*format!("{} - Server started successfully\n", get_time()));
+            .log(&format!("{} - Server started successfully\n", get_time()));
         // Add launched app state and config info
     }
 
@@ -123,14 +121,14 @@ impl Fairing for FairingLogger {
         );
 
         // Log the message
-        self.logger().lock().unwrap().log(&*msg);
+        self.logger().lock().unwrap().log(&msg);
     }
 
     async fn on_shutdown(&self, _rocket: &Rocket<Orbit>) {
         self.logger()
             .lock()
             .unwrap()
-            .log(&*format!("{} - Server shutting down\n", get_time()));
+            .log(&format!("{} - Server shutting down\n", get_time()));
     }
 }
 
