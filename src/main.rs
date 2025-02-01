@@ -4,7 +4,7 @@ mod api_keys;
 mod logs;
 
 use crate::config::ServerConfig;
-use crate::routes::{get, post};
+use crate::routes::{get, post, delete};
 use crate::api_keys::ApiKeyStore;
 
 use std::sync::{Arc, Mutex};
@@ -33,5 +33,6 @@ fn rocket() -> _ {
         .attach(FairingLogger::new(logger)) // Attaches the logger fairing
         .mount("/", routes![get::index, get::password, get::all_passwords_id]) // Mounts the get routes
         .mount("/", routes![post::password, post::reload_api_keys]) // Mounts the post route
+        .mount("/", routes![delete::delete_password]) // Mounts the delete route
         .register("/", catchers![routes::catchers::unauthorized]) // Mounts the  catchers
 }
