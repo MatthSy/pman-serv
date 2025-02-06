@@ -8,7 +8,7 @@ use crate::routes::{get, post, delete};
 use crate::api_keys::ApiKeyStore;
 
 use std::sync::{Arc, Mutex};
-use chrono::{TimeZone, Utc};
+use chrono::{Utc};
 use tokio::time::{Duration};
 use tokio_cron_scheduler::{JobScheduler, Job};
 
@@ -75,13 +75,25 @@ async fn main() -> Result<(), rocket::Error> {
 
         let logger = config.new_logger();
 
-        tokio::spawn(async {
+
+        let bk_file_path = config.log_file().clone();
+        tokio::spawn(async move {
+
             // Start the scheduler
             let scheduler = JobScheduler::new().await.unwrap();
 
-            let job = Job::new_tz("0 0 2 * * *", Utc, |_, _| { // Runs at 2 o'clock every day
-                tokio::spawn(async {
-                    // TODO : verify if every backup is older than a week and remove it definitely
+            let job = Job::new_tz("0 0 2 * * *", Utc, move |_, _| { // Runs at 2 o'clock every day
+                let bk_file_path = bk_file_path.clone();
+                tokio::spawn( async move {
+                    let files = std::fs::read_dir(bk_file_path).unwrap();
+                    for file in files {
+                        let file = file.unwrap();
+                        let metadata = file.metadata().unwrap();
+                        let duration = metadata.modified().unwrap().elapsed().unwrap();
+                        if duration.as_secs() > 604800 { // Seven days
+                            std::fs::remove_file(file.path()).unwrap();
+                        }
+                    }
                 });
             }).unwrap();
 
