@@ -76,16 +76,17 @@ async fn main() -> Result<(), rocket::Error> {
         let logger = config.new_logger();
 
 
-        let bk_file_path = config.log_file().clone();
+        let data_dir = config.data_dir().clone();
         tokio::spawn(async move {
 
             // Start the scheduler
             let scheduler = JobScheduler::new().await.unwrap();
 
             let job = Job::new_tz("0 0 2 * * *", Utc, move |_, _| { // Runs at 2 o'clock every day
-                let bk_file_path = bk_file_path.clone();
+                let data_dir = data_dir.clone();
                 tokio::spawn( async move {
-                    let files = std::fs::read_dir(bk_file_path).unwrap();
+                    // Correct to actually access backup dir and not data dir
+                    let files = std::fs::read_dir(data_dir).unwrap();
                     for file in files {
                         let file = file.unwrap();
                         let metadata = file.metadata().unwrap();
