@@ -88,6 +88,7 @@ pub(crate) enum ApiKeyError {
     MissingUser,
     InvalidApiKey,
     InvalidUser,
+    ReservedUserName,
 }
 
 #[allow(unused)]
@@ -110,17 +111,24 @@ impl<'r> FromRequest<'r> for ValidUser {
         if api_user.is_none() {
             return Outcome::Error((rocket::http::Status::BadRequest, ApiKeyError::MissingUser));
         }
+        let api_key = api_key.unwrap();
+        let api_user = api_user.unwrap();
+
+        // Checks for reserved usernames
+        if api_user.to_lowercase() == "backup" {
+            return Outcome::Error((rocket::http::Status::BadRequest, ApiKeyError::ReservedUserName));
+        }
 
         if let Err(err) = api_key_list
             .lock()
             .unwrap()
-            .is_valid(api_key.unwrap(), api_user.unwrap())
+            .is_valid(api_key, api_user)
         {
             Outcome::Error((rocket::http::Status::BadRequest, err))
         } else {
             Outcome::Success(ValidUser {
-                key: String::from(api_key.unwrap()),
-                user_name: String::from(api_user.unwrap()),
+                key: String::from(api_key),
+                user_name: String::from(api_user),
             })
         }
     }

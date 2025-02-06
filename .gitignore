@@ -1,6 +1,8 @@
 /target
 /.idea
 data/
+data/*
 serverLogs.log
 testLogs.log
 *.log
+cargo.lock
