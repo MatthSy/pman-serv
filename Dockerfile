@@ -7,10 +7,13 @@ COPY . .
 RUN cargo build --release
 
 # Stage 2
-FROM debian:buster-slim
+FROM debian:stable-slim
+
+RUN apt-get update
 
 WORKDIR /usr/src/pman/serv
 COPY --from=builder /usr/src/pman/serv/target/release/serv ./main
+COPY . .
 
 EXPOSE 8000
 ENV ROCKET_ADDRESS=0.0.0.0
