@@ -1,7 +1,7 @@
 # Stage 1
 FROM rust:1.80.1 as builder
 
-WORKDIR /usr/src/pman/serv
+WORKDIR /apps/pman
 COPY . .
 
 RUN cargo build --release
@@ -11,8 +11,8 @@ FROM debian:stable-slim
 
 RUN apt-get update
 
-WORKDIR /usr/src/pman/serv
-COPY --from=builder /usr/src/pman/serv/target/release/serv ./main
+WORKDIR /apps/pman
+COPY --from=builder /apps/pman/target/release/serv ./main
 COPY . .
 
 EXPOSE 8000

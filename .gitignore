@@ -2,7 +2,8 @@
 /.idea
 data/
 data/*
-serverLogs.log
+security/serverLogs.log
 testLogs.log
 *.log
 cargo.lock
+security/*

@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    working_dir: "/apps/pman"
+    ports:
+        - "8000:8000"
+    volumes:
+      - type : bind
+        source: "./data"
+        target: "/apps/pman/data"
+      - type : bind
+        source: "./security"
+        target: "/apps/pman/security"
