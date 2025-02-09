@@ -16,7 +16,7 @@ use tokio_cron_scheduler::{Job, JobScheduler};
 extern crate rocket;
 use crate::logs::FairingLogger;
 use rocket::Config;
-
+use rocket::log::private::logger;
 // #[launch]
 // fn rocket() -> _ {
 //     let config: ServerConfig = config::load_config(None);
@@ -137,6 +137,7 @@ async fn main() -> Result<(), rocket::Error> {
         .register("/", catchers![routes::catchers::unauthorized]); // Mounts the  catchers
 
     r.launch().await?;
+    println!("IP : {}", &config.ip);
 
     Ok(())
 }

@@ -1,6 +1,7 @@
 services:
   app:
     build: .
+    network_mode: host
     working_dir: "/apps/pman"
     ports:
         - "8000:8000"

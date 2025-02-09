@@ -27,7 +27,7 @@ pub(crate) fn load_config(config_dir : Option<String>) -> ServerConfig {
 impl Default for ServerConfig {
     fn default() -> Self {
         ServerConfig {
-            ip: "127.0.0.1".to_string(),
+            ip: "0.0.0.0".to_string(),
             port: 8000,
             data_dir: None,
             api_key_file: None,

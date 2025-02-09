@@ -5,5 +5,5 @@ data/*
 security/serverLogs.log
 testLogs.log
 *.log
-cargo.lock
 security/*
+Cargo.lock
