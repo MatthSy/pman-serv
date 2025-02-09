@@ -26,6 +26,7 @@ impl Logger {
             .append(true)
             .open(self.clone().file);
 
+        let msg = format!("{} | {msg}", get_time());
         match file {
             Ok(mut file) => file.write_all(msg.as_bytes()).unwrap_or(()),
             Err(_) => {
@@ -70,7 +71,7 @@ impl Fairing for FairingLogger {
         self.logger()
             .lock()
             .unwrap()
-            .log(&format!("{} - Server started successfully\n", get_time()));
+            .log("Server started successfully\n");
         // Add launched app state and config info
     }
 
@@ -81,8 +82,7 @@ impl Fairing for FairingLogger {
     async fn on_response<'r>(&self, req: &'r Request<'_>, res: &mut Response<'r>) {
         // Message to log, with the time, the method, the IP, and the URI
         let mut msg = format!(
-            "{} {} Request, user {}, ip: {} to uri \"{}\"",
-            get_time(),
+            "{} Request, user {}, ip: {} to uri \"{}\"",
             req.method(),
             req.headers().get_one("X-USER-NAME").unwrap_or("No user name"),
             get_ip(req),
@@ -128,7 +128,7 @@ impl Fairing for FairingLogger {
         self.logger()
             .lock()
             .unwrap()
-            .log(&format!("{} - Server shutting down\n", get_time()));
+            .log("Server shutting down\n");
     }
 }
 
