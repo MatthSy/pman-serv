@@ -137,7 +137,6 @@ async fn main() -> Result<(), rocket::Error> {
         .register("/", catchers![routes::catchers::unauthorized]); // Mounts the  catchers
 
     r.launch().await?;
-    println!("IP : {}", &config.ip);
 
     Ok(())
 }
