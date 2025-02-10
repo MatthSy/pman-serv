@@ -33,7 +33,10 @@ async fn main() -> Result<(), rocket::Error> {
 
     // The job for removing backups after 2 weeks
     let data_dir = config.data_dir().clone();
-    tokio::spawn(async move { jobs::remove_backup_job(data_dir) });
+    let tmp_logger = Arc::clone(&logger);
+    tokio::spawn(async move {
+        jobs::remove_backup_job(data_dir, tmp_logger).await
+    });
 
     // The rocket app
     let r = rocket::build()

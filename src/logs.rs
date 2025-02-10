@@ -26,7 +26,7 @@ impl Logger {
             .append(true)
             .open(self.clone().file);
 
-        let msg = format!("{} | {msg}", get_time());
+        let msg = format!("{} | {msg}\n", get_time());
         match file {
             Ok(mut file) => file.write_all(msg.as_bytes()).unwrap_or(()),
             Err(_) => {
