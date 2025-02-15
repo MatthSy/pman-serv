@@ -45,9 +45,9 @@ pub(crate) async fn remove_backup_job(data_dir: String, logger: Arc<Mutex<Logger
     // Start the scheduler
     scheduler.start().await.unwrap();
 
-    // Keep the main thread alive
+    // Keep the thread alive
     loop {
-        tokio::time::sleep(Duration::from_secs(1)).await; // Sleep to keep the main thread alive
+        tokio::time::sleep(Duration::from_secs(60)).await;
         // println!("Alive");
     }
 }
