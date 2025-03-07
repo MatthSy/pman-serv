@@ -35,9 +35,9 @@ impl ApiKeyStore {
     }
 
     pub(crate) fn load_keys(&mut self, path: String) -> &mut Self {
-        fs::read_to_string(path)
-            .expect("Failed to read file")
-            .lines()
+        let read_data = fs::read_to_string(&path);
+            let valid_data = read_data.unwrap();
+            valid_data.lines()
             .for_each(|line| {
                 let mut line = line.split(" ");
                 self.keys

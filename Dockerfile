@@ -14,12 +14,19 @@ RUN cargo build --target x86_64-unknown-linux-musl --release
 FROM alpine:latest
 
 WORKDIR /apps/pman
+RUN adduser -D admin
 COPY --from=builder /apps/pman/target/x86_64-unknown-linux-musl/release/serv ./main
-COPY . .
+COPY ./config.toml ./config.toml
+COPY ./security ./security
+
+RUN chown -R admin:admin ./security
+RUN chmod -R a=rw ./security
+USER admin
 
 EXPOSE 8000
 ENV ROCKET_ADDRESS=0.0.0.0
 ENV ROCKET_PORT=8000
 ENV ROCKET_LOG_LEVEL=debug
+
 
 CMD ["./main"]
