@@ -4,7 +4,7 @@ use std::io::Write;
 use std::sync::{Arc, Mutex};
 use crate::api_keys::{ValidUser, ApiKeyStore};
 use crate::config::ServerConfig;
-use crate::routes::get::GetPasswordError;
+use crate::input_guard::PostReqGuard;
 
 #[derive(Responder)]
 pub(crate) enum PostError {
@@ -16,7 +16,7 @@ pub(crate) enum PostError {
 }
 
 #[post("/passwords/<password_id>", data = "<data>")]
-pub(crate) async fn password(config: &State<ServerConfig>, password_id: &str, data: &str, api_user: ValidUser) -> Result<(), PostError> {
+pub(crate) async fn password(config: &State<ServerConfig>, password_id: &str, data: PostReqGuard, api_user: ValidUser) -> Result<(), PostError> {
     let dir = api_user.get_user_dir(&config);
     if dir.is_err() {
         return Err(PostError::FileError(String::from(
@@ -32,7 +32,7 @@ pub(crate) async fn password(config: &State<ServerConfig>, password_id: &str, da
         return Err(PostError::FileError(String::from("Error while opening or creating file")));
     }
     let mut file = file.unwrap();
-    if file.write_all(data.as_ref()).is_err() {
+    if file.write_all(data.0.as_ref()).is_err() {
         return Err(PostError::FileError(String::from("Error while writing to file")));
     }
     Ok(())

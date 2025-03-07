@@ -100,7 +100,7 @@ impl<'r> FromRequest<'r> for ValidUser {
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         let api_key_list = request
-            .guard::<&rocket::State<Arc<Mutex<ApiKeyStore>>>>()
+            .guard::<&State<Arc<Mutex<ApiKeyStore>>>>()
             .await
             .unwrap();
 

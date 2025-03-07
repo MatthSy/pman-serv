@@ -4,6 +4,7 @@ use std::io::Read;
 use std::sync::{Arc, Mutex};
 use crate::api_keys::{ValidUser, ApiKeyStore};
 use crate::config::ServerConfig;
+use crate::input_guard::PostReqGuard;
 
 #[derive(Responder)]
 pub(crate) enum GetPasswordError {

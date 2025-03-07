@@ -3,6 +3,7 @@ mod config;
 mod logs;
 mod routes;
 mod jobs;
+mod input_guard;
 
 use crate::api_keys::ApiKeyStore;
 use crate::config::ServerConfig;
