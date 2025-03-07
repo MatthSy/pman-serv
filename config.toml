@@ -1,5 +1,5 @@
 ip = '0.0.0.0'
 port = 8000
 data_dir = './data'
-api_key_file = './security/api_keys'
-log_file = './security/serverLogs.log'
+api_key_file = '/app/pman/security/api_keys'
+log_file = '/app/pman/security/serverLogs.log'
