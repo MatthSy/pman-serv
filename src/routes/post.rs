@@ -5,7 +5,6 @@ use std::sync::{Arc, Mutex};
 use crate::api_keys::{ValidUser, ApiKeyStore};
 use crate::config::ServerConfig;
 use crate::input_guard::PostReqGuard;
-use pmanApiLib::encryption::EncryptedData;
 
 #[derive(Responder)]
 pub(crate) enum PostError {
