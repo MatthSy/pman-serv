@@ -12,11 +12,9 @@ RUN cargo build --target x86_64-unknown-linux-musl --release
 
 # Stage 2
 FROM alpine:latest
-#FROM debian:latest
 
 WORKDIR /apps/pman
 RUN adduser -D admin
-#RUN adduser --disabled-password admin
 COPY --from=builder /apps/pman/target/x86_64-unknown-linux-musl/release/serv ./main
 COPY ./config.toml ./config.toml
 COPY ./security /app/pman/security
