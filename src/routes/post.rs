@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex};
 use crate::api_keys::{ValidUser, ApiKeyStore};
 use crate::config::ServerConfig;
 use crate::input_guard::PostReqGuard;
+use pmanApiLib::encryption::EncryptedData;
 
 #[derive(Responder)]
 pub(crate) enum PostError {
@@ -32,7 +33,11 @@ pub(crate) async fn password(config: &State<ServerConfig>, password_id: &str, da
         return Err(PostError::FileError(String::from("Error while opening or creating file")));
     }
     let mut file = file.unwrap();
-    if file.write_all(data.0.as_ref()).is_err() {
+    let reserialized = toml::to_string(&data.0);
+    if reserialized.is_err() {
+        return Err(PostError::OtherError(String::from("Error while reserializing data")));
+    }
+    if file.write_all(reserialized.unwrap().as_bytes()).is_err() {
         return Err(PostError::FileError(String::from("Error while writing to file")));
     }
     Ok(())
